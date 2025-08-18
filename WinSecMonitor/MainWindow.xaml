@@ -1,0 +1,78 @@
+<Window x:Class="WinSecMonitor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WinSecMonitor"
+        xmlns:views="clr-namespace:WinSecMonitor.GUI.Views"
+        mc:Ignorable="d"
+        Title="WinSecMonitor - System Security Monitoring" Height="700" Width="1000"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Menu Bar -->
+        <Menu Grid.Row="0">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Export Settings" Click="ExportSettings_Click"/>
+                <MenuItem Header="_Import Settings" Click="ImportSettings_Click"/>
+                <Separator/>
+                <MenuItem Header="E_xit" Click="Exit_Click"/>
+            </MenuItem>
+            <MenuItem Header="_Tools">
+                <MenuItem Header="_Log Viewer" Click="LogViewer_Click"/>
+                <MenuItem Header="_Debug Settings" Click="DebugSettings_Click"/>
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About" Click="About_Click"/>
+            </MenuItem>
+        </Menu>
+        
+        <!-- Header -->
+        <Border Grid.Row="1" Background="#2c3e50" Padding="10">
+            <TextBlock Text="Windows Security Monitor" FontSize="20" Foreground="White" FontWeight="Bold"/>
+        </Border>
+        
+        <!-- Main Content -->
+        <TabControl Grid.Row="2" Margin="5">
+            <TabItem Header="Dashboard">
+                <views:DashboardView/>
+            </TabItem>
+            <TabItem Header="System Monitoring">
+                <views:SystemMonitoringView/>
+            </TabItem>
+            <TabItem Header="Authentication Monitoring">
+                <views:AuthenticationMonitoringView/>
+            </TabItem>
+            <TabItem Header="File &amp; Registry Monitoring">
+                <views:FileRegistryMonitoringView/>
+            </TabItem>
+            <TabItem Header="Process &amp; Malware Monitoring">
+                <local:Modules.Processes.ProcessMonitoringView/>
+            </TabItem>
+            <TabItem Header="Network Monitoring">
+                <views:NetworkMonitoringView/>
+            </TabItem>
+            <TabItem Header="Vulnerability &amp; Compliance">
+                <views:VulnerabilityComplianceView/>
+            </TabItem>
+            <TabItem Header="Event Log &amp; Correlation">
+                <views:EventLogCorrelationView/>
+            </TabItem>
+            <TabItem Header="Alert &amp; Mitigation">
+                <views:AlertMitigationView/>
+            </TabItem>
+            <!-- Additional tabs can be added here for future modules -->
+        </TabControl>
+        
+        <!-- Footer -->
+        <Border Grid.Row="3" Background="#2c3e50" Padding="5">
+            <TextBlock Text="© 2023 WinSecMonitor - System Security Monitoring Tool" HorizontalAlignment="Center" Foreground="#7f8c8d"/>
+        </Border>
+    </Grid>
+</Window>

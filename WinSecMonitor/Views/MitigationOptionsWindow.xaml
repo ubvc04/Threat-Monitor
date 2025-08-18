@@ -1,0 +1,171 @@
+<Window x:Class="WinSecMonitor.Views.MitigationOptionsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WinSecMonitor.Views"
+        mc:Ignorable="d"
+        Title="Mitigation Options" Height="450" Width="600"
+        WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <Style x:Key="HeaderTextBlockStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,5,0,2"/>
+        </Style>
+        <Style x:Key="OptionButtonStyle" TargetType="Button">
+            <Setter Property="Margin" Value="0,5,0,5"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        </Style>
+    </Window.Resources>
+    
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Mitigation Options" FontSize="18" FontWeight="Bold" Margin="0,0,0,5"/>
+            <TextBlock Text="{Binding AlertTitle}" TextWrapping="Wrap" FontStyle="Italic"/>
+            <TextBlock Text="{Binding AlertDescription}" TextWrapping="Wrap" Margin="0,5,0,0" Foreground="#666"/>
+        </StackPanel>
+        
+        <Separator Grid.Row="1" Margin="0,10"/>
+        
+        <!-- Automatic Mitigation -->
+        <StackPanel Grid.Row="2">
+            <TextBlock Text="Automatic Mitigation" Style="{StaticResource HeaderTextBlockStyle}"/>
+            <CheckBox Content="Apply automatic mitigation based on rules" IsChecked="{Binding ApplyAutomaticMitigation}" Margin="0,5"/>
+            <TextBlock Text="{Binding AutomaticMitigationDescription}" TextWrapping="Wrap" Margin="20,5,0,10" Foreground="#666"/>
+        </StackPanel>
+        
+        <!-- Manual Mitigation Options -->
+        <GroupBox Grid.Row="3" Header="Manual Mitigation Options">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- IP Blocking -->
+                    <Expander Header="Block IP Address" IsExpanded="False" Margin="0,5">
+                        <Grid Margin="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="IP Address:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding IPToBlock}" Margin="0,5"/>
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Duration (hours):" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding IPBlockDuration}" Margin="0,5"/>
+                            
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Reason:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding IPBlockReason}" Margin="0,5"/>
+                            
+                            <Button Grid.Row="3" Grid.Column="1" Content="Block IP" Command="{Binding BlockIPCommand}" HorizontalAlignment="Right" Margin="0,10,0,0" Padding="10,3"/>
+                        </Grid>
+                    </Expander>
+                    
+                    <!-- Process Termination -->
+                    <Expander Header="Kill Process" IsExpanded="False" Margin="0,5">
+                        <Grid Margin="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Process ID:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ProcessID}" Margin="0,5"/>
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Reason:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ProcessKillReason}" Margin="0,5"/>
+                            
+                            <Button Grid.Row="2" Grid.Column="1" Content="Kill Process" Command="{Binding KillProcessCommand}" HorizontalAlignment="Right" Margin="0,10,0,0" Padding="10,3"/>
+                        </Grid>
+                    </Expander>
+                    
+                    <!-- File Quarantine -->
+                    <Expander Header="Quarantine File" IsExpanded="False" Margin="0,5">
+                        <Grid Margin="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="File Path:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding FileToQuarantine}" Margin="0,5"/>
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Reason:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding FileQuarantineReason}" Margin="0,5"/>
+                            
+                            <Button Grid.Row="2" Grid.Column="1" Content="Quarantine File" Command="{Binding QuarantineFileCommand}" HorizontalAlignment="Right" Margin="0,10,0,0" Padding="10,3"/>
+                        </Grid>
+                    </Expander>
+                    
+                    <!-- User Account Disabling -->
+                    <Expander Header="Disable User Account" IsExpanded="False" Margin="0,5">
+                        <Grid Margin="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Username:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding UsernameToDisable}" Margin="0,5"/>
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Reason:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding AccountDisableReason}" Margin="0,5"/>
+                            
+                            <Button Grid.Row="2" Grid.Column="1" Content="Disable Account" Command="{Binding DisableAccountCommand}" HorizontalAlignment="Right" Margin="0,10,0,0" Padding="10,3"/>
+                        </Grid>
+                    </Expander>
+                    
+                    <!-- Custom Mitigation -->
+                    <Expander Header="Custom Mitigation" IsExpanded="False" Margin="0,5">
+                        <Grid Margin="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Text="Enter custom mitigation details:" Margin="0,0,0,5"/>
+                            <TextBox Grid.Row="1" Text="{Binding CustomMitigationDetails}" TextWrapping="Wrap" AcceptsReturn="True" Height="80" Margin="0,0,0,10"/>
+                            
+                            <Button Grid.Row="2" Content="Apply Custom Mitigation" Command="{Binding ApplyCustomMitigationCommand}" HorizontalAlignment="Right" Padding="10,3"/>
+                        </Grid>
+                    </Expander>
+                </StackPanel>
+            </ScrollViewer>
+        </GroupBox>
+        
+        <!-- Buttons -->
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+            <Button Content="Close" IsCancel="True" Width="100"/>
+        </StackPanel>
+    </Grid>
+</Window>

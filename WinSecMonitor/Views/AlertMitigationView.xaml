@@ -1,0 +1,588 @@
+<UserControl x:Class="WinSecMonitor.Views.AlertMitigationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WinSecMonitor.Views"
+             xmlns:converters="clr-namespace:WinSecMonitor.Utils.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <converters:AlertSeverityToBrushConverter x:Key="AlertSeverityToBrushConverter" />
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
+            
+            <Style x:Key="HeaderTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="Margin" Value="0,10,0,5" />
+            </Style>
+            
+            <Style x:Key="SubHeaderTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Margin" Value="0,5,0,5" />
+            </Style>
+            
+            <Style x:Key="StatusTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="Margin" Value="5,2,5,2" />
+            </Style>
+            
+            <Style x:Key="ActionButtonStyle" TargetType="Button">
+                <Setter Property="Padding" Value="10,5" />
+                <Setter Property="Margin" Value="5" />
+                <Setter Property="MinWidth" Value="100" />
+            </Style>
+
+            <Style x:Key="MitigationButtonStyle" TargetType="Button">
+                <Setter Property="Padding" Value="8,3" />
+                <Setter Property="Margin" Value="2" />
+                <Setter Property="MinWidth" Value="80" />
+                <Setter Property="Background" Value="#2c3e50" />
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" 
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    BorderThickness="{TemplateBinding BorderThickness}" 
+                                    CornerRadius="3">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#34495e" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        
+        <!-- Header with controls -->
+        <Grid Grid.Row="0" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <Button x:Name="RefreshButton" Content="Refresh Alerts" Style="{StaticResource ActionButtonStyle}" 
+                        Command="{Binding RefreshCommand}" />
+                <Button x:Name="AcknowledgeAllButton" Content="Acknowledge All" Style="{StaticResource ActionButtonStyle}" 
+                        Command="{Binding AcknowledgeAllCommand}" />
+                <Button x:Name="ClearAcknowledgedButton" Content="Clear Acknowledged" Style="{StaticResource ActionButtonStyle}" 
+                        Command="{Binding ClearAcknowledgedCommand}" />
+            </StackPanel>
+            
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button x:Name="SettingsButton" Content="Settings" Style="{StaticResource ActionButtonStyle}" 
+                        Command="{Binding OpenSettingsCommand}" />
+                <Button x:Name="ExportButton" Content="Export Alerts" Style="{StaticResource ActionButtonStyle}" 
+                        Command="{Binding ExportAlertsCommand}" />
+            </StackPanel>
+        </Grid>
+        
+        <!-- Main content -->
+        <TabControl Grid.Row="1" Margin="10,0,10,10">
+            <!-- Dashboard Tab -->
+            <TabItem Header="Dashboard">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Status Panel -->
+                    <Border Grid.Row="0" BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,10,0,10" Padding="10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Alert Statistics -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Alert Statistics" Style="{StaticResource SubHeaderTextBlockStyle}" />
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Total Alerts:" Style="{StaticResource StatusTextBlockStyle}" />
+                                    <TextBlock Text="{Binding TotalAlerts}" Style="{StaticResource StatusTextBlockStyle}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="High Severity:" Style="{StaticResource StatusTextBlockStyle}" />
+                                    <TextBlock Text="{Binding HighSeverityCount}" Style="{StaticResource StatusTextBlockStyle}" 
+                                               Foreground="Red" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Medium Severity:" Style="{StaticResource StatusTextBlockStyle}" />
+                                    <TextBlock Text="{Binding MediumSeverityCount}" Style="{StaticResource StatusTextBlockStyle}" 
+                                               Foreground="Orange" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Low Severity:" Style="{StaticResource StatusTextBlockStyle}" />
+                                    <TextBlock Text="{Binding LowSeverityCount}" Style="{StaticResource StatusTextBlockStyle}" 
+                                               Foreground="Green" />
+                                </StackPanel>
+                            </StackPanel>
+                            
+                            <!-- Mitigation Statistics -->
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="Mitigation Statistics" Style="{StaticResource SubHeaderTextBlockStyle}" />
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Total Mitigations:" Style="{StaticResource StatusTextBlockStyle}" />
+                                    <TextBlock Text="{Binding TotalMitigations}" Style="{StaticResource StatusTextBlockStyle}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="IPs Blocked:" Style="{StaticResource StatusTextBlockStyle}" />
+                                    <TextBlock Text="{Binding BlockedIPsCount}" Style="{StaticResource StatusTextBlockStyle}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Processes Killed:" Style="{StaticResource StatusTextBlockStyle}" />
+                                    <TextBlock Text="{Binding KilledProcessesCount}" Style="{StaticResource StatusTextBlockStyle}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Files Quarantined:" Style="{StaticResource StatusTextBlockStyle}" />
+                                    <TextBlock Text="{Binding QuarantinedFilesCount}" Style="{StaticResource StatusTextBlockStyle}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Accounts Disabled:" Style="{StaticResource StatusTextBlockStyle}" />
+                                    <TextBlock Text="{Binding DisabledAccountsCount}" Style="{StaticResource StatusTextBlockStyle}" />
+                                </StackPanel>
+                            </StackPanel>
+                            
+                            <!-- Mitigation Rules -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Mitigation Rules" Style="{StaticResource SubHeaderTextBlockStyle}" />
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Active Rules:" Style="{StaticResource StatusTextBlockStyle}" />
+                                    <TextBlock Text="{Binding ActiveRulesCount}" Style="{StaticResource StatusTextBlockStyle}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Automatic Mitigation:" Style="{StaticResource StatusTextBlockStyle}" />
+                                    <TextBlock Text="{Binding IsAutoMitigationEnabled}" Style="{StaticResource StatusTextBlockStyle}" 
+                                               Foreground="{Binding IsAutoMitigationEnabled, Converter={StaticResource BooleanToColorConverter}}" />
+                                </StackPanel>
+                                <Button Content="Manage Rules" Command="{Binding ManageRulesCommand}" 
+                                        Margin="0,5,0,0" Padding="5,2" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Alert Filters -->
+                    <Grid Grid.Row="1" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Text="Filter:" VerticalAlignment="Center" Margin="0,0,10,0" />
+                        <TextBox Grid.Column="1" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" 
+                                 Margin="0,0,10,0" Padding="5,3" />
+                        
+                        <TextBlock Grid.Column="2" Text="Severity:" VerticalAlignment="Center" Margin="0,0,10,0" />
+                        <ComboBox Grid.Column="3" ItemsSource="{Binding SeverityFilters}" 
+                                  SelectedItem="{Binding SelectedSeverityFilter}" 
+                                  Width="120" Margin="0,0,10,0" />
+                        
+                        <CheckBox Grid.Column="4" Content="Show Acknowledged" 
+                                  IsChecked="{Binding ShowAcknowledged}" 
+                                  VerticalAlignment="Center" />
+                    </Grid>
+                    
+                    <!-- Alerts Panel -->
+                    <Grid Grid.Row="2">
+                        <DataGrid ItemsSource="{Binding FilteredAlerts}" AutoGenerateColumns="False" 
+                                  IsReadOnly="True" AlternatingRowBackground="#F5F5F5"
+                                  SelectedItem="{Binding SelectedAlert}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Time" Binding="{Binding Timestamp}" Width="150" />
+                                <DataGridTemplateColumn Header="Severity" Width="100">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Severity}" 
+                                                       Foreground="{Binding Severity, Converter={StaticResource AlertSeverityToBrushConverter}}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="120" />
+                                <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="200" />
+                                <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" />
+                                <DataGridTemplateColumn Header="Actions" Width="180">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Content="Acknowledge" 
+                                                        Command="{Binding DataContext.AcknowledgeCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                                        CommandParameter="{Binding}" 
+                                                        Style="{StaticResource MitigationButtonStyle}" 
+                                                        Visibility="{Binding IsAcknowledged, Converter={StaticResource InverseBooleanToVisibilityConverter}}" />
+                                                <Button Content="Mitigate" 
+                                                        Command="{Binding DataContext.MitigateCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                                        CommandParameter="{Binding}" 
+                                                        Style="{StaticResource MitigationButtonStyle}" />
+                                                <Button Content="Details" 
+                                                        Command="{Binding DataContext.ViewDetailsCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                                        CommandParameter="{Binding}" 
+                                                        Style="{StaticResource MitigationButtonStyle}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            
+            <!-- Mitigation Tab -->
+            <TabItem Header="Mitigation Actions">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Controls -->
+                    <Grid Grid.Row="0" Margin="0,10,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Text="Filter:" VerticalAlignment="Center" Margin="0,0,10,0" />
+                        <TextBox Grid.Column="1" Text="{Binding MitigationFilterText, UpdateSourceTrigger=PropertyChanged}" 
+                                 Margin="0,0,10,0" Padding="5,3" />
+                        
+                        <TextBlock Grid.Column="2" Text="Type:" VerticalAlignment="Center" Margin="0,0,10,0" />
+                        <ComboBox Grid.Column="3" ItemsSource="{Binding MitigationTypeFilters}" 
+                                  SelectedItem="{Binding SelectedMitigationTypeFilter}" 
+                                  Width="150" Margin="0,0,10,0" />
+                    </Grid>
+                    
+                    <!-- Mitigation Actions List -->
+                    <TabControl Grid.Row="1">
+                        <TabItem Header="All Mitigations">
+                            <DataGrid ItemsSource="{Binding FilteredMitigationActions}" AutoGenerateColumns="False" 
+                                      IsReadOnly="True" AlternatingRowBackground="#F5F5F5">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Time" Binding="{Binding Timestamp}" Width="150" />
+                                    <DataGridTextColumn Header="Type" Binding="{Binding ActionType}" Width="120" />
+                                    <DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="150" />
+                                    <DataGridTextColumn Header="Result" Binding="{Binding Result}" Width="100" />
+                                    <DataGridTextColumn Header="Details" Binding="{Binding Details}" Width="*" />
+                                    <DataGridTemplateColumn Header="Actions" Width="100">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Content="Revert" 
+                                                        Command="{Binding DataContext.RevertMitigationCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                                        CommandParameter="{Binding}" 
+                                                        Style="{StaticResource MitigationButtonStyle}" 
+                                                        Visibility="{Binding CanRevert, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+                        
+                        <TabItem Header="Blocked IPs">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                
+                                <DataGrid Grid.Row="0" ItemsSource="{Binding BlockedIPs}" AutoGenerateColumns="False" 
+                                          IsReadOnly="True" AlternatingRowBackground="#F5F5F5">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="IP Address" Binding="{Binding IPAddress}" Width="150" />
+                                        <DataGridTextColumn Header="Blocked Since" Binding="{Binding BlockedSince}" Width="150" />
+                                        <DataGridTextColumn Header="Reason" Binding="{Binding Reason}" Width="*" />
+                                        <DataGridTemplateColumn Header="Actions" Width="100">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Content="Unblock" 
+                                                            Command="{Binding DataContext.UnblockIPCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                                            CommandParameter="{Binding}" 
+                                                            Style="{StaticResource MitigationButtonStyle}" />
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                
+                                <Grid Grid.Row="1" Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <TextBlock Grid.Column="0" Text="IP Address:" VerticalAlignment="Center" Margin="0,0,10,0" />
+                                    <TextBox Grid.Column="1" Text="{Binding NewIPToBlock}" Margin="0,0,10,0" Padding="5,3" />
+                                    
+                                    <TextBlock Grid.Column="2" Text="Reason:" VerticalAlignment="Center" Margin="0,0,10,0" />
+                                    <TextBox Grid.Column="3" Text="{Binding NewIPBlockReason}" Margin="0,0,10,0" Padding="5,3" />
+                                    
+                                    <Button Grid.Column="4" Content="Block IP" Command="{Binding BlockIPCommand}" 
+                                            Style="{StaticResource ActionButtonStyle}" />
+                                </Grid>
+                            </Grid>
+                        </TabItem>
+                        
+                        <TabItem Header="Quarantined Files">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                
+                                <DataGrid Grid.Row="0" ItemsSource="{Binding QuarantinedFiles}" AutoGenerateColumns="False" 
+                                          IsReadOnly="True" AlternatingRowBackground="#F5F5F5">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="File Path" Binding="{Binding OriginalPath}" Width="250" />
+                                        <DataGridTextColumn Header="Quarantined On" Binding="{Binding QuarantinedOn}" Width="150" />
+                                        <DataGridTextColumn Header="Reason" Binding="{Binding Reason}" Width="*" />
+                                        <DataGridTemplateColumn Header="Actions" Width="180">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Button Content="Restore" 
+                                                                Command="{Binding DataContext.RestoreFileCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                                                CommandParameter="{Binding}" 
+                                                                Style="{StaticResource MitigationButtonStyle}" />
+                                                        <Button Content="Delete Permanently" 
+                                                                Command="{Binding DataContext.DeleteQuarantinedFileCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                                                CommandParameter="{Binding}" 
+                                                                Style="{StaticResource MitigationButtonStyle}" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                
+                                <Grid Grid.Row="1" Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <TextBlock Grid.Column="0" Text="File Path:" VerticalAlignment="Center" Margin="0,0,10,0" />
+                                    <TextBox Grid.Column="1" Text="{Binding NewFileToQuarantine}" Margin="0,0,10,0" Padding="5,3" />
+                                    
+                                    <TextBlock Grid.Column="2" Text="Reason:" VerticalAlignment="Center" Margin="0,0,10,0" />
+                                    <TextBox Grid.Column="3" Text="{Binding NewFileQuarantineReason}" Margin="0,0,10,0" Padding="5,3" />
+                                    
+                                    <Button Grid.Column="4" Content="Quarantine File" Command="{Binding QuarantineFileCommand}" 
+                                            Style="{StaticResource ActionButtonStyle}" />
+                                </Grid>
+                            </Grid>
+                        </TabItem>
+                        
+                        <TabItem Header="Disabled Accounts">
+                            <DataGrid ItemsSource="{Binding DisabledAccounts}" AutoGenerateColumns="False" 
+                                      IsReadOnly="True" AlternatingRowBackground="#F5F5F5">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="150" />
+                                    <DataGridTextColumn Header="Disabled Since" Binding="{Binding DisabledSince}" Width="150" />
+                                    <DataGridTextColumn Header="Reason" Binding="{Binding Reason}" Width="*" />
+                                    <DataGridTemplateColumn Header="Actions" Width="100">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Content="Enable" 
+                                                        Command="{Binding DataContext.EnableAccountCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                                        CommandParameter="{Binding}" 
+                                                        Style="{StaticResource MitigationButtonStyle}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+                    </TabControl>
+                </Grid>
+            </TabItem>
+            
+            <!-- Settings Tab -->
+            <TabItem Header="Settings">
+                <ScrollViewer>
+                    <StackPanel Margin="10">
+                        <TextBlock Text="Alert &amp; Mitigation Settings" Style="{StaticResource HeaderTextBlockStyle}" />
+                        
+                        <!-- General Settings -->
+                        <Expander Header="General Settings" IsExpanded="True" Margin="0,10,0,10">
+                            <Grid Margin="10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="250" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Enable Automatic Mitigation:" 
+                                           VerticalAlignment="Center" />
+                                <CheckBox Grid.Row="0" Grid.Column="1" IsChecked="{Binding IsAutoMitigationEnabled}" 
+                                          VerticalAlignment="Center" />
+                                
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Alert Retention Period (days):" 
+                                           VerticalAlignment="Center" Margin="0,10,0,0" />
+                                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding AlertRetentionDays}" 
+                                         Margin="0,10,0,0" Width="100" HorizontalAlignment="Left" />
+                                
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Maximum Alerts to Display:" 
+                                           VerticalAlignment="Center" Margin="0,10,0,0" />
+                                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding MaxAlertsToDisplay}" 
+                                         Margin="0,10,0,0" Width="100" HorizontalAlignment="Left" />
+                                
+                                <Button Grid.Row="3" Grid.Column="1" Content="Save Settings" 
+                                        Command="{Binding SaveSettingsCommand}" 
+                                        Style="{StaticResource ActionButtonStyle}" 
+                                        Margin="0,20,0,0" HorizontalAlignment="Left" />
+                            </Grid>
+                        </Expander>
+                        
+                        <!-- Mitigation Rules -->
+                        <Expander Header="Mitigation Rules" Margin="0,0,0,10">
+                            <Grid Margin="10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                
+                                <TextBlock Grid.Row="0" Text="Configure automatic mitigation rules for different alert types" 
+                                           Margin="0,0,0,10" TextWrapping="Wrap" />
+                                
+                                <DataGrid Grid.Row="1" ItemsSource="{Binding MitigationRules}" AutoGenerateColumns="False" 
+                                          AlternatingRowBackground="#F5F5F5" Height="300">
+                                    <DataGrid.Columns>
+                                        <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding IsEnabled}" Width="70" />
+                                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="200" />
+                                        <DataGridTextColumn Header="Alert Type" Binding="{Binding AlertType}" Width="120" />
+                                        <DataGridTextColumn Header="Severity" Binding="{Binding MinimumSeverity}" Width="100" />
+                                        <DataGridTextColumn Header="Action Type" Binding="{Binding ActionType}" Width="120" />
+                                        <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" />
+                                        <DataGridTemplateColumn Header="Actions" Width="100">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Content="Edit" 
+                                                            Command="{Binding DataContext.EditRuleCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                                            CommandParameter="{Binding}" 
+                                                            Style="{StaticResource MitigationButtonStyle}" />
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                
+                                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
+                                    <Button Content="Add Rule" Command="{Binding AddRuleCommand}" 
+                                            Style="{StaticResource ActionButtonStyle}" />
+                                    <Button Content="Remove Rule" Command="{Binding RemoveRuleCommand}" 
+                                            Style="{StaticResource ActionButtonStyle}" />
+                                </StackPanel>
+                            </Grid>
+                        </Expander>
+                        
+                        <!-- Quarantine Settings -->
+                        <Expander Header="Quarantine Settings" Margin="0,0,0,10">
+                            <Grid Margin="10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="250" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Quarantine Location:" 
+                                           VerticalAlignment="Center" />
+                                <Grid Grid.Row="0" Grid.Column="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0" Text="{Binding QuarantineLocation}" />
+                                    <Button Grid.Column="1" Content="Browse" Command="{Binding BrowseQuarantineLocationCommand}" 
+                                            Margin="5,0,0,0" Padding="5,0" />
+                                </Grid>
+                                
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Quarantine Retention Period (days):" 
+                                           VerticalAlignment="Center" Margin="0,10,0,0" />
+                                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding QuarantineRetentionDays}" 
+                                         Margin="0,10,0,0" Width="100" HorizontalAlignment="Left" />
+                                
+                                <Button Grid.Row="2" Grid.Column="1" Content="Save Quarantine Settings" 
+                                        Command="{Binding SaveQuarantineSettingsCommand}" 
+                                        Style="{StaticResource ActionButtonStyle}" 
+                                        Margin="0,20,0,0" HorizontalAlignment="Left" />
+                            </Grid>
+                        </Expander>
+                        
+                        <!-- IP Blocking Settings -->
+                        <Expander Header="IP Blocking Settings" Margin="0,0,0,10">
+                            <Grid Margin="10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="250" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Blocking Method:" 
+                                           VerticalAlignment="Center" />
+                                <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding IPBlockingMethods}" 
+                                          SelectedItem="{Binding SelectedIPBlockingMethod}" 
+                                          Width="200" HorizontalAlignment="Left" />
+                                
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Default Block Duration (hours):" 
+                                           VerticalAlignment="Center" Margin="0,10,0,0" />
+                                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding DefaultIPBlockDuration}" 
+                                         Margin="0,10,0,0" Width="100" HorizontalAlignment="Left" />
+                                
+                                <Button Grid.Row="2" Grid.Column="1" Content="Save IP Blocking Settings" 
+                                        Command="{Binding SaveIPBlockingSettingsCommand}" 
+                                        Style="{StaticResource ActionButtonStyle}" 
+                                        Margin="0,20,0,0" HorizontalAlignment="Left" />
+                            </Grid>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

@@ -1,0 +1,334 @@
+<UserControl x:Class="WinSecMonitor.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WinSecMonitor.Views"
+             xmlns:converters="clr-namespace:WinSecMonitor.Utils.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <converters:AlertSeverityToBrushConverter x:Key="AlertSeverityToBrushConverter" />
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
+            
+            <Style x:Key="HeaderTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="Margin" Value="0,10,0,5" />
+            </Style>
+            
+            <Style x:Key="SubHeaderTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Margin" Value="0,5,0,5" />
+            </Style>
+            
+            <Style x:Key="StatusTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="Margin" Value="5,2,5,2" />
+            </Style>
+            
+            <Style x:Key="ActionButtonStyle" TargetType="Button">
+                <Setter Property="Padding" Value="10,5" />
+                <Setter Property="Margin" Value="5" />
+                <Setter Property="MinWidth" Value="100" />
+            </Style>
+
+            <Style x:Key="CardBorderStyle" TargetType="Border">
+                <Setter Property="Background" Value="White" />
+                <Setter Property="BorderBrush" Value="#DDDDDD" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="5" />
+                <Setter Property="Padding" Value="10" />
+                <Setter Property="Margin" Value="5" />
+                <Setter Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect ShadowDepth="1" BlurRadius="5" Opacity="0.2" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="MetricValueStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="24" />
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+            </Style>
+
+            <Style x:Key="MetricLabelStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="Opacity" Value="0.7" />
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            
+            <!-- Header with controls -->
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0" Text="System Security Dashboard" 
+                           FontSize="20" FontWeight="Bold" VerticalAlignment="Center" />
+                
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button x:Name="RefreshButton" Content="Refresh Dashboard" Style="{StaticResource ActionButtonStyle}" 
+                            Command="{Binding RefreshDashboardCommand}" />
+                    <Button x:Name="ExportButton" Content="Export Report" Style="{StaticResource ActionButtonStyle}" 
+                            Command="{Binding ExportReportCommand}" />
+                </StackPanel>
+            </Grid>
+            
+            <!-- System Status Overview -->
+            <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}" Margin="5,15,5,5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Text="System Status Overview" Style="{StaticResource HeaderTextBlockStyle}" />
+                    
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- System Info -->
+                        <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Background="#f8f9fa">
+                            <StackPanel>
+                                <TextBlock Text="System" Style="{StaticResource SubHeaderTextBlockStyle}" HorizontalAlignment="Center" />
+                                <TextBlock Text="{Binding SystemStatus}" Style="{StaticResource MetricValueStyle}" 
+                                           Foreground="{Binding SystemStatusColor}" />
+                                <TextBlock Text="Windows Version" Style="{StaticResource MetricLabelStyle}" />
+                                <TextBlock Text="{Binding WindowsVersion}" Style="{StaticResource StatusTextBlockStyle}" 
+                                           HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Security Status -->
+                        <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Background="#f8f9fa">
+                            <StackPanel>
+                                <TextBlock Text="Security" Style="{StaticResource SubHeaderTextBlockStyle}" HorizontalAlignment="Center" />
+                                <TextBlock Text="{Binding SecurityStatus}" Style="{StaticResource MetricValueStyle}" 
+                                           Foreground="{Binding SecurityStatusColor}" />
+                                <TextBlock Text="Last Scan" Style="{StaticResource MetricLabelStyle}" />
+                                <TextBlock Text="{Binding LastSecurityScan}" Style="{StaticResource StatusTextBlockStyle}" 
+                                           HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Active Alerts -->
+                        <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Background="#f8f9fa">
+                            <StackPanel>
+                                <TextBlock Text="Alerts" Style="{StaticResource SubHeaderTextBlockStyle}" HorizontalAlignment="Center" />
+                                <TextBlock Text="{Binding ActiveAlertsCount}" Style="{StaticResource MetricValueStyle}" 
+                                           Foreground="{Binding AlertsStatusColor}" />
+                                <TextBlock Text="Active Alerts" Style="{StaticResource MetricLabelStyle}" />
+                                <Button Content="View All" Command="{Binding ViewAllAlertsCommand}" 
+                                        HorizontalAlignment="Center" Margin="0,5,0,0" Padding="5,2" />
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Monitoring Status -->
+                        <Border Grid.Column="3" Style="{StaticResource CardBorderStyle}" Background="#f8f9fa">
+                            <StackPanel>
+                                <TextBlock Text="Monitoring" Style="{StaticResource SubHeaderTextBlockStyle}" HorizontalAlignment="Center" />
+                                <TextBlock Text="{Binding MonitoringStatus}" Style="{StaticResource MetricValueStyle}" 
+                                           Foreground="{Binding MonitoringStatusColor}" />
+                                <TextBlock Text="Active Modules" Style="{StaticResource MetricLabelStyle}" />
+                                <TextBlock Text="{Binding ActiveModulesCount}" Style="{StaticResource StatusTextBlockStyle}" 
+                                           HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+            
+            <!-- Security Metrics -->
+            <Grid Grid.Row="2" Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                
+                <!-- Recent Alerts -->
+                <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Grid.Row="0" Text="Recent Alerts" Style="{StaticResource HeaderTextBlockStyle}" />
+                        
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding RecentAlerts}" AutoGenerateColumns="False" 
+                                  IsReadOnly="True" AlternatingRowBackground="#F5F5F5" MaxHeight="200">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Time" Binding="{Binding Timestamp}" Width="150" />
+                                <DataGridTextColumn Header="Module" Binding="{Binding Module}" Width="100" />
+                                <DataGridTemplateColumn Header="Severity" Width="80">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Severity}" 
+                                                       Foreground="{Binding Severity, Converter={StaticResource AlertSeverityToBrushConverter}}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+                
+                <!-- System Resource Usage -->
+                <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Grid.Row="0" Text="System Resource Usage" Style="{StaticResource HeaderTextBlockStyle}" />
+                        
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            
+                            <!-- CPU Usage -->
+                            <StackPanel Grid.Row="0" Grid.Column="0">
+                                <TextBlock Text="CPU Usage" Style="{StaticResource SubHeaderTextBlockStyle}" HorizontalAlignment="Center" />
+                                <ProgressBar Value="{Binding CpuUsage}" Maximum="100" Height="20" Margin="10,5" />
+                                <TextBlock Text="{Binding CpuUsage, StringFormat={}{0}%}" HorizontalAlignment="Center" />
+                            </StackPanel>
+                            
+                            <!-- Memory Usage -->
+                            <StackPanel Grid.Row="0" Grid.Column="1">
+                                <TextBlock Text="Memory Usage" Style="{StaticResource SubHeaderTextBlockStyle}" HorizontalAlignment="Center" />
+                                <ProgressBar Value="{Binding MemoryUsage}" Maximum="100" Height="20" Margin="10,5" />
+                                <TextBlock Text="{Binding MemoryUsage, StringFormat={}{0}%}" HorizontalAlignment="Center" />
+                            </StackPanel>
+                            
+                            <!-- Disk Usage -->
+                            <StackPanel Grid.Row="1" Grid.Column="0">
+                                <TextBlock Text="Disk Usage" Style="{StaticResource SubHeaderTextBlockStyle}" HorizontalAlignment="Center" />
+                                <ProgressBar Value="{Binding DiskUsage}" Maximum="100" Height="20" Margin="10,5" />
+                                <TextBlock Text="{Binding DiskUsage, StringFormat={}{0}%}" HorizontalAlignment="Center" />
+                            </StackPanel>
+                            
+                            <!-- Network Usage -->
+                            <StackPanel Grid.Row="1" Grid.Column="1">
+                                <TextBlock Text="Network Usage" Style="{StaticResource SubHeaderTextBlockStyle}" HorizontalAlignment="Center" />
+                                <ProgressBar Value="{Binding NetworkUsage}" Maximum="100" Height="20" Margin="10,5" />
+                                <TextBlock Text="{Binding NetworkUsage, StringFormat={}{0}%}" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+            
+            <!-- Module Status -->
+            <Border Grid.Row="3" Style="{StaticResource CardBorderStyle}" Margin="5,15,5,5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Text="Module Status" Style="{StaticResource HeaderTextBlockStyle}" />
+                    
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding ModuleStatuses}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource CardBorderStyle}" Width="180" Height="100" Margin="5">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        
+                                        <TextBlock Grid.Row="0" Text="{Binding Name}" Style="{StaticResource SubHeaderTextBlockStyle}" 
+                                                   HorizontalAlignment="Center" />
+                                        
+                                        <TextBlock Grid.Row="1" Text="{Binding Status}" Style="{StaticResource MetricValueStyle}" 
+                                                   Foreground="{Binding StatusColor}" VerticalAlignment="Center" />
+                                        
+                                        <TextBlock Grid.Row="2" Text="{Binding LastUpdated}" Style="{StaticResource StatusTextBlockStyle}" 
+                                                   HorizontalAlignment="Center" FontSize="10" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </Border>
+            
+            <!-- Security Recommendations -->
+            <Border Grid.Row="4" Style="{StaticResource CardBorderStyle}" Margin="5,15,5,5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Text="Security Recommendations" Style="{StaticResource HeaderTextBlockStyle}" />
+                    
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding SecurityRecommendations}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="#EEEEEE" BorderThickness="0,0,0,1" Padding="5">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <Ellipse Grid.Column="0" Width="12" Height="12" Fill="{Binding PriorityColor}" 
+                                                 Margin="5,0" VerticalAlignment="Center" />
+                                        
+                                        <TextBlock Grid.Column="1" Text="{Binding Description}" TextWrapping="Wrap" 
+                                                   VerticalAlignment="Center" Margin="5,10" />
+                                        
+                                        <Button Grid.Column="2" Content="Fix" Command="{Binding FixCommand}" 
+                                                CommandParameter="{Binding}" Padding="10,3" Margin="5,0" 
+                                                Visibility="{Binding CanAutoFix, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>
